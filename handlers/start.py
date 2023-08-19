@@ -1,7 +1,7 @@
 from aiogram import types, Dispatcher
 from config import bot, group_id
 from database.SQLOperator import SQLOperator
-import keyboards.start_keyboards as kb
+import keyboards.kb as kb
 
 
 async def is_admin(user_id: types.Message):
@@ -35,7 +35,7 @@ async def start_command_start(message: types.Message):
             await bot.send_message(
                 chat_id=message.chat.id,
                 text='Какой у вас курс?',
-                reply_markup=await kb.start_keyboard_five_button(
+                reply_markup=await kb.five_button_inline_markup(
                     text=['2 месяц', '3 месяц', '4 месяц', '5 месяц', 'этот месяц не преподаю'],
                     callback=['start_btn_2', 'start_btn_3', 'start_btn_4', 'start_btn_5', 'start_btn_no']))
 
@@ -59,7 +59,7 @@ async def start_command_start(message: types.Message):
             await bot.send_message(
                 chat_id=message.chat.id,
                 text='Приветствую вас сенсей! Планируете преподавать?',
-                reply_markup=await kb.start_keyboard_two_button(
+                reply_markup=await kb.two_button_inline_markup(
                     text=['Да, конечно', 'Этот месяц не преподаю'],
                     callback=['start_btn_yes', 'start_btn_no']))
 

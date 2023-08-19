@@ -5,8 +5,6 @@ from database.SQLOperator import SQLOperator
 import database.sql_queries as sql
 
  # chart - логика на 10 минут
- # start - готов
- # admin_action - готов
  # Написать смену месяца через месяц
 
 

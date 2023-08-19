@@ -6,7 +6,7 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-import keyboards.admin_keyboards as kb
+import keyboards.kb as kb
 from config import bot, group_id
 from database.SQLOperator import SQLOperator
 
@@ -21,7 +21,7 @@ async def chart_start_fsm(call: types.CallbackQuery):
     await bot.send_message(
         text='Какой месяц у студента?',
         chat_id=call.message.chat.id,
-        reply_markup=await kb.admin_keyboard_five_button(
+        reply_markup=await kb.five_button_inline_markup(
             text=['1 месяц', '2 месяц', '3 месяц', '4 месяц', '5 месяц'],
             callback=['admin_chart_btn_1', 'admin_chart_btn_2', 'admin_chart_btn_3',
                       'admin_chart_btn_4', 'admin_chart_btn_5']))
@@ -198,7 +198,7 @@ async def load_chart_student(message: types.Message, state: FSMContext):
         await bot.send_message(
             text='Вы победили! У вас 10 минут подтвердить готовность, время пошло.\n',
             chat_id=winner['telegram_id'],
-            reply_markup=await kb.admin_keyboard_two_button(
+            reply_markup=await kb.two_button_inline_markup(
                 text=['Забрать', 'Отказаться'],
                 callback=['admin_btn_take', 'admin_btn_not_take']))
 

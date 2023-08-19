@@ -1,13 +1,13 @@
 from aiogram import types, Dispatcher
 from config import bot
-import keyboards.change_keyboar as kb
+import keyboards.kb as kb
 
 
 async def change_command_change(message: types.Message):
     if message.chat.type == types.chat.ChatType.PRIVATE:
         await message.reply(
             text='Вы хотите сменить свой месяц обучения?',
-            reply_markup=await kb.change_keyboard_two_button(
+            reply_markup=await kb.two_button_inline_markup(
                 text=['Да', 'Нет, я ошибся'],
                 callback=['change_btn_yes', 'change_btn_no']))
 
@@ -21,7 +21,7 @@ async def change_command_change_yes(call: types.CallbackQuery):
     await bot.send_message(
         chat_id=call.message.chat.id,
         text='Какой у вас курс?',
-        reply_markup=await kb.change_keyboard_five_button(
+        reply_markup=await kb.five_button_inline_markup(
             text=['2 месяц', '3 месяц', '4 месяц', '5 месяц', 'этот месяц не преподаю'],
             callback=['start_btn_2', 'start_btn_3', 'start_btn_4', 'start_btn_5', 'start_btn_no']))
 

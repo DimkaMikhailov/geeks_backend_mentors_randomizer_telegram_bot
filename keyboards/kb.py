@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 
-async def admin_keyboard_five_button(text: list[str], callback: list[str]):
+async def five_button_inline_markup(text: list[str], callback: list[str]):
     if len(text) == 5 and len(callback) == 5:
         button1 = InlineKeyboardButton(text=text[0], callback_data=callback[0])
         button2 = InlineKeyboardButton(text=text[1], callback_data=callback[1])
@@ -14,10 +14,12 @@ async def admin_keyboard_five_button(text: list[str], callback: list[str]):
         return markup
 
 
-async def admin_keyboard_two_button(text: list[str], callback: list[str]):
+async def two_button_inline_markup(text: list[str], callback: list[str]):
     if len(text) == 2 and len(callback) == 2:
         button1 = InlineKeyboardButton(text=text[0], callback_data=callback[0])
         button2 = InlineKeyboardButton(text=text[1], callback_data=callback[1])
         markup = InlineKeyboardMarkup()
         markup.add(button1, button2)
         return markup
+
+

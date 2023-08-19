@@ -1,7 +1,7 @@
 from aiogram import types, Dispatcher
 from config import bot, group_id
 from database.SQLOperator import SQLOperator
-import keyboards.admin_keyboards as kb
+import keyboards.kb as kb
 
 
 async def is_admin(user_id: types.Message):
@@ -19,7 +19,7 @@ async def admin_action_chart(message: types.Message):
         await bot.send_message(
             text='Отдать студента кому-то конкретному?',
             chat_id=message.from_user.id,
-            reply_markup=await kb.admin_keyboard_two_button(
+            reply_markup=await kb.two_button_inline_markup(
                 text=['Да', 'Пусть решит случай'],
                 callback=['admin_chart_btn_yes', 'admin_chart_btn_no']))
 
