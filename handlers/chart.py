@@ -1,12 +1,14 @@
-import asyncio
-from asyncio import timeout
 from random import choice
+import asyncio
+import datetime
+
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
+
+import keyboards.admin_keyboards as kb
 from config import bot, group_id
 from database.SQLOperator import SQLOperator
-import keyboards.admin_keyboards as kb
 
 
 class ChartStates(StatesGroup):
@@ -189,10 +191,10 @@ async def load_chart_student(message: types.Message, state: FSMContext):
                 'username': '',
                 'telegram_id': '',
                 'message': message.text}
-
         data['student'] = student
         await ChartStates.next()
         winner = data['winner']
+        await asyncio.sleep(0.5)
         await bot.send_message(
             text='Вы победили! У вас 10 минут подтвердить готовность, время пошло.\n',
             chat_id=winner['telegram_id'],
@@ -240,14 +242,19 @@ async def chart_not_take_student(call: types.CallbackQuery, state: FSMContext):
             month, failure = data['month'], data['winner']
         await state.finish()
     await bot.send_message(
-        text='Это будет сложно, но попробуем этот месяц обойтись без вас!',
+        text='Это будет сложно, но попробуем обойтись без вас!',
         chat_id=call.message.chat.id)
     await ChartStates.winner.set()
-    if month == 1: await chart_winner_for_1m(call, state, failure_user=failure)
-    elif month == 2: await chart_winner_for_2m(call, state, failure_user=failure)
-    elif month == 3: await chart_winner_for_3m(call, state, failure_user=failure)
-    elif month == 4: await chart_winner_for_4m(call, state, failure_user=failure)
-    else: await chart_winner_for_5m(call, state, failure_user=failure)
+    if month == 1:
+        await chart_winner_for_1m(call, state, failure_user=failure)
+    elif month == 2:
+        await chart_winner_for_2m(call, state, failure_user=failure)
+    elif month == 3:
+        await chart_winner_for_3m(call, state, failure_user=failure)
+    elif month == 4:
+        await chart_winner_for_4m(call, state, failure_user=failure)
+    else:
+        await chart_winner_for_5m(call, state, failure_user=failure)
 
 
 def register_chart_handlers(dp: Dispatcher):

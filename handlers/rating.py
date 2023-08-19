@@ -16,8 +16,6 @@ async def in_chat(user_id: types.Message):
 async def rating_command_rating(message: types.Message):
     if message.chat.type == types.chat.ChatType.PRIVATE:
         admin = await is_admin(user_id=message.from_user.id)
-        mentor = SQLOperator().select_rating_mentor_for(user_id=message.from_user.id)
-        print(mentor)
         if admin:
             mentor_list = SQLOperator().select_rating_all_mentors()
             data = ['*Список менторов:*']
@@ -42,7 +40,7 @@ async def rating_command_rating(message: types.Message):
                 mentor = SQLOperator().select_rating_mentor_for(user_id=message.from_user.id)
                 await message.reply(
                     text=f'Ваши результаты:\n'
-                         f'Разыграно заявок за месяц: {mentor["requests"]}'
+                         f'Разыграно заявок: {mentor["requests"]}'
                          f'Поручено студентов: {mentor["win"]}\n'
                          f'Пропущено заявок: {mentor["failure"]}')
                 if mentor['win'] > 5:

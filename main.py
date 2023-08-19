@@ -1,16 +1,12 @@
 from aiogram.utils import executor
 from config import dp
-from handlers import start, admin_actions, change, help, rating, rule, chart
+from handlers import start, admin_actions, change, help, rating, rule, chart, mentors
 from database.SQLOperator import SQLOperator
 import database.sql_queries as sql
 
- # rating - логика на 10 минут
+ # chart - логика на 10 минут
  # start - готов
  # admin_action - готов
- # help - Добавить для админа каких менторов сколько
- # mentors - C нуля
- # rule - готов
- # cange - готов
  # Написать смену месяца через месяц
 
 
@@ -31,6 +27,7 @@ help.register_help_handlers(dp)
 rating.register_rating_handlers(dp)
 rule.register_rule_handlers(dp)
 chart.register_chart_handlers(dp)
+mentors.register_mentors_handlers(dp)
 # filter for message always at the END
 
 if __name__ == '__main__':

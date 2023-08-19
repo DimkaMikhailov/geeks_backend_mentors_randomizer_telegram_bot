@@ -12,8 +12,8 @@ async def help_command_help(message: types.Message):
         admin_command_list = [
             '/chart - для розыгрыша заявки студента',
             '/rating - узнать рейтинг менторов',
-            '/kick - для удаления участника группы'
-            '/mentors - узнать сколько менторов на какой месяц',]
+            '/mentors - узнать сколько менторов на какой месяц',
+            '/kick - для удаления участника группы',]
 
         data = ['<b>Список команд чата:</b>\n для пользователей:']
         for command in commands_list:

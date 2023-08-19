@@ -134,13 +134,12 @@ class SQLOperator:
                                           mentors_rating.wins, 
                                           mentors_rating.failure, 
                                           mentors_rating.mentor_id
-    FROM mentors_rating JOIN mentors ON mentors_rating.mentor_id = mentors.id WHERE mentors.telegram_id={user_id}''')
+                                          FROM mentors_rating WHERE mentor_id={user_id}''')
 
             result = self.__cur.fetchall()
         except Error as e:
             print('select_rating_mentors', e)
-        print(result)
-        return dict(zip(headers, result)) if result else {}
+        return dict(zip(headers, result[0])) if result else {}
 
     def select_rating_all_mentors(self) -> list[dict[Any, Any]]:
         headers = ['request', 'wins', 'failure', 'telegram_id', 'month', 'username', 'first_name']
