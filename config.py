@@ -5,6 +5,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 TOKEN = config('TOKEN')
 db = config('DBASE')
+dbase = config('DATABASE')
 bot = Bot(token=TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(bot=bot, storage=storage)
