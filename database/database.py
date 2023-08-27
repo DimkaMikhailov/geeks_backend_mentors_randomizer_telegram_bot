@@ -15,13 +15,13 @@ class Database:
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
 
-    def add_user(self, username, email):
+    def add_mentor(self, username, email):
         new_user = Mentor(username=username, email=email)
         self.session.add(new_user)
         self.session.commit()
 
-    def get_user_by_username(self, username):
-        mentor = self.session.query(Mentor).filter_by(username=username).first()
+    def get_mentor_by_telegram_id(self, telegram_id):
+        mentor = self.session.query(Mentor).filter_by(telegram_id=telegram_id).first()
         return mentor
 
 
