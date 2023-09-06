@@ -1,6 +1,5 @@
 from random import choice
 import asyncio
-import datetime
 
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
@@ -8,7 +7,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 import keyboards.kb as kb
 from config import bot, group_id
-from database.SQLOperator import SQLOperator
+from database.async_database import Database
 
 
 class ChartStates(StatesGroup):
@@ -30,14 +29,17 @@ async def chart_start_fsm(call: types.CallbackQuery):
 
 
 async def chart_winner_for_1m(call: types.CallbackQuery, state: FSMContext, failure_user=None):
-    mentors = SQLOperator().select_mentors_for(1)
+    mentors = await Database().select_mentors(by_month=1)
+    print(mentors)
     chart_list = []
 
     for mentor in mentors:
-        if mentor['in_chart']:
-            member_in_chat = await bot.get_chat_member(chat_id=group_id, user_id=mentor['telegram_id'])
-            if member_in_chat['status'] not in ['kicked', 'left']:
+        member_in_chat = await bot.get_chat_member(chat_id=group_id, user_id=mentor.telegram_id)
+        if member_in_chat['status'] not in ['kicked', 'left']:
+            if mentor.in_chart:
                 chart_list.append(mentor)
+        else:
+            await Database().update_user(telegram_id=mentor.telegram_id, mentor=False, in_chart=False)
 
     if failure_user:
         chart_list.remove(failure_user)
@@ -50,8 +52,7 @@ async def chart_winner_for_1m(call: types.CallbackQuery, state: FSMContext, fail
         await ChartStates.next()
         await bot.send_message(
             chat_id=call.message.chat.id,
-            text='Перешлите сообщение или контакт студента.'
-        )
+            text='Перешлите сообщение или контакт студента.')
 
     else:
         await state.finish()
@@ -61,12 +62,12 @@ async def chart_winner_for_1m(call: types.CallbackQuery, state: FSMContext, fail
 
 
 async def chart_winner_for_2m(call: types.CallbackQuery, state: FSMContext, failure_user=None):
-    mentors = SQLOperator().select_mentors_for(2)
+    mentors = await Database().select_mentors(by_month=2)
     chart_list = []
 
     for mentor in mentors:
-        if mentor['in_chart']:
-            member_in_chat = await bot.get_chat_member(chat_id=group_id, user_id=mentor['telegram_id'])
+        if mentor.in_chart:
+            member_in_chat = await bot.get_chat_member(chat_id=group_id, user_id=mentor.telegram_id)
             if member_in_chat['status'] not in ['kicked', 'left']:
                 chart_list.append(mentor)
 
@@ -90,12 +91,12 @@ async def chart_winner_for_2m(call: types.CallbackQuery, state: FSMContext, fail
 
 
 async def chart_winner_for_3m(call: types.CallbackQuery, state: FSMContext, failure_user=None):
-    mentors = SQLOperator().select_mentors_for(3)
+    mentors = await Database().select_mentors(by_month=3)
     chart_list = []
 
     for mentor in mentors:
-        if mentor['in_chart']:
-            member_in_chat = await bot.get_chat_member(chat_id=group_id, user_id=mentor['telegram_id'])
+        if mentor.in_chart:
+            member_in_chat = await bot.get_chat_member(chat_id=group_id, user_id=mentor.telegram_id)
             if member_in_chat['status'] not in ['kicked', 'left']:
                 chart_list.append(mentor)
 
@@ -120,12 +121,12 @@ async def chart_winner_for_3m(call: types.CallbackQuery, state: FSMContext, fail
 
 
 async def chart_winner_for_4m(call: types.CallbackQuery, state: FSMContext, failure_user=None):
-    mentors = SQLOperator().select_mentors_for(4)
+    mentors = await Database().select_mentors(by_month=4)
     chart_list = []
 
     for mentor in mentors:
         if mentor['in_chart']:
-            member_in_chat = await bot.get_chat_member(chat_id=group_id, user_id=mentor['telegram_id'])
+            member_in_chat = await bot.get_chat_member(chat_id=group_id, user_id=mentor.telegram_id)
             if member_in_chat['status'] not in ['kicked', 'left']:
                 chart_list.append(mentor)
 
@@ -150,12 +151,12 @@ async def chart_winner_for_4m(call: types.CallbackQuery, state: FSMContext, fail
 
 
 async def chart_winner_for_5m(call: types.CallbackQuery, state: FSMContext, failure_user=None):
-    mentors = SQLOperator().select_mentors_for(5)
+    mentors = await Database().select_mentors(by_month=5)
     chart_list = []
 
     for mentor in mentors:
         if mentor['in_chart']:
-            member_in_chat = await bot.get_chat_member(chat_id=group_id, user_id=mentor['telegram_id'])
+            member_in_chat = await bot.get_chat_member(chat_id=group_id, user_id=mentor.telegram_id)
             if member_in_chat['status'] not in ['kicked', 'left']:
                 chart_list.append(mentor)
 
@@ -197,21 +198,20 @@ async def load_chart_student(message: types.Message, state: FSMContext):
         await asyncio.sleep(0.5)
         await bot.send_message(
             text='Вы победили! У вас 10 минут подтвердить готовность, время пошло.\n',
-            chat_id=winner['telegram_id'],
+            chat_id=winner.telegram_id,
             reply_markup=await kb.two_button_inline_markup(
                 text=['Забрать', 'Отказаться'],
                 callback=['admin_btn_take', 'admin_btn_not_take']))
 
 
 async def chart_take_student(call: types.CallbackQuery, state: FSMContext):
-    SQLOperator().update_reqeust()
     async with state.proxy() as data:
         winner = data['winner']
-        SQLOperator().update_wins(user_id=winner['telegram_id'])
+        await Database().update_mentor_rating(telegram_id=winner.telegram_id)
 
         await bot.send_message(
             text=f'Студент {data["month"]} месяц достается достатется '
-                 f'*{winner["username"] if winner["username"] else winner["first_name"]}*!',
+                 f'*{winner.username if winner.username else winner.first_name}*!',
             chat_id=group_id,
             parse_mode=types.ParseMode.MARKDOWN)
 

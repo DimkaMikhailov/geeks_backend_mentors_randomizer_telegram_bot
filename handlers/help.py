@@ -12,6 +12,7 @@ async def help_command_help(message: types.Message):
         admin_command_list = [
             '/chart - для розыгрыша заявки студента',
             '/rating - узнать рейтинг менторов',
+            '/change - для смены статуса преподования',
             '/mentors - узнать сколько менторов на какой месяц',
             '/kick - для удаления участника группы',]
 

@@ -23,12 +23,32 @@ async def two_button_inline_markup(text: list[str], callback: list[str]):
         return markup
 
 
-async def mentors_list_inline_markup(mentors_list):
+async def mentors_list_inline_markup(mentors_list, delete_status=False):
     markup = InlineKeyboardMarkup()
     for mentor in mentors_list:
-        markup.add(InlineKeyboardButton(
-            text=f"✔ {mentor['username'] if mentor['username'] else mentor['first_name']}",
-            callback_data=f'actions_btn_{mentor["telegram_id"]}'
-        ))
+        if mentor.mentor:
+            if delete_status:
+                check = '❌'
+            else:
+                check = '✔'
+            markup.add(InlineKeyboardButton(
+                text=f"{check} {mentor.username if mentor.username else mentor.first_name}",
+                callback_data=f'actions_btn_{mentor.telegram_id}'
+            ))
+    return markup
+
+
+async def kick_mentors_list_inline_markup(mentors_list, delete_status=False):
+    markup = InlineKeyboardMarkup()
+    for mentor in mentors_list:
+        if mentor.mentor:
+            if delete_status:
+                check = '❌'
+            else:
+                check = '✔'
+            markup.add(InlineKeyboardButton(
+                text=f"{check} {mentor.username if mentor.username else mentor.first_name}",
+                callback_data=f'kick_btn_{mentor.telegram_id}'
+            ))
     return markup
 

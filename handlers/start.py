@@ -1,17 +1,18 @@
 from aiogram import types, Dispatcher
 from config import bot, group_id
-from database.SQLOperator import SQLOperator
+
 import keyboards.kb as kb
+from database.async_database import Database as Mentors, MentorsRating
 
 
-async def is_admin(user_id: types.Message):
+async def is_admin(user_id: int):
     member = await bot.get_chat_member(chat_id=group_id, user_id=user_id)
     return True if member['status'] in ['creator', 'admin'] else False
 
 
 async def start_command_start(message: types.Message):
     if message.chat.type == types.chat.ChatType.PRIVATE:
-        mentor = SQLOperator().select_one_mentor(user_id=message.from_user.id)
+        mentor = await Mentors().get_user(by_telegram_id=message.from_user.id)
         admin = await is_admin(user_id=message.from_user.id)
         if not mentor and not admin:
             await message.reply(
@@ -22,15 +23,12 @@ async def start_command_start(message: types.Message):
                      f'личного мнения, интересов, политических взглядов и т.п.\n'
                      f'Будте корректны и взаимовежливы!',
                 parse_mode=types.ParseMode.HTML)
-            print('add member')
-            SQLOperator().insert_into('mentors', (
-                False,
-                message.from_user.id,
-                message.from_user.first_name,
-                message.from_user.last_name,
-                message.from_user.username,
-                False,
-                1))
+
+            await Mentors().add_user(
+                telegram_id=message.from_user.id,
+                username=message.from_user.username,
+                first_name=message.from_user.first_name,
+                last_name=message.from_user.last_name)
 
             await bot.send_message(
                 chat_id=message.chat.id,
@@ -47,14 +45,12 @@ async def start_command_start(message: types.Message):
                      f'Больше информации /help')
 
         elif not mentor and admin:
-            SQLOperator().insert_into('mentors', (
-                True,
-                message.from_user.id,
-                message.from_user.first_name,
-                message.from_user.last_name,
-                message.from_user.username,
-                False,
-                256))
+            await Mentors().add_user(
+                telegram_id=message.from_user.id,
+                username=message.from_user.username,
+                first_name=message.from_user.first_name,
+                last_name=message.from_user.last_name,
+                month=256)
 
             await bot.send_message(
                 chat_id=message.chat.id,
@@ -76,46 +72,47 @@ async def start_command_start(message: types.Message):
 
 
 async def start_callback_2_month(call: types.CallbackQuery):
-    SQLOperator().update_month(user_id=call.from_user.id, month=2)
-    SQLOperator().update_in_chart(user_id=call.from_user.id, in_chart=True)
+    await Mentors().update_user(telegram_id=call.from_user.id, month=2, in_chart=True)
+    await Mentors().add_mentor_to_mentors_rating(mentor_telegram_id=call.from_user.id)
     await bot.send_message(
         chat_id=call.message.chat.id,
         text='Отлично, вы ментор для студентов 1 месяца обучения!')
 
 
 async def start_callback_3_month(call: types.CallbackQuery):
-    SQLOperator().update_month(user_id=call.from_user.id, month=3)
-    SQLOperator().update_in_chart(user_id=call.from_user.id, in_chart=True)
+    await Mentors().update_user(telegram_id=call.from_user.id, month=3, in_chart=True)
+    await Mentors().add_mentor_to_mentors_rating(mentor_telegram_id=call.from_user.id)
     await bot.send_message(
         chat_id=call.message.chat.id,
         text='Отлично, вы ментор для студентов 1-2 месяца обучения!')
 
 
 async def start_callback_4_month(call: types.CallbackQuery):
-    SQLOperator().update_month(user_id=call.from_user.id, month=4)
-    SQLOperator().update_in_chart(user_id=call.from_user.id, in_chart=True)
+    await Mentors().update_user(telegram_id=call.from_user.id, month=4, in_chart=True)
+    await Mentors().add_mentor_to_mentors_rating(mentor_telegram_id=call.from_user.id)
     await bot.send_message(
         chat_id=call.message.chat.id,
         text='Отлично, вы ментор для студентов 1-3 месяца обучения!')
 
 
 async def start_callback_5_month(call: types.CallbackQuery):
-    SQLOperator().update_month(user_id=call.from_user.id, month=5)
-    SQLOperator().update_in_chart(user_id=call.from_user.id, in_chart=True)
+    await Mentors().update_user(telegram_id=call.from_user.id, month=5, in_chart=True)
+    await Mentors().add_mentor_to_mentors_rating(mentor_telegram_id=call.from_user.id)
     await bot.send_message(
         chat_id=call.message.chat.id,
         text='Отлично, вы ментор для студентов 1-4 месяца обучения!')
 
 
 async def start_callback_teach_no(call: types.CallbackQuery):
-    SQLOperator().update_in_chart(user_id=call.from_user.id, in_chart=False)
+    await Mentors().update_user(telegram_id=call.from_user.id, in_chart=False)
     await bot.send_message(
         chat_id=call.message.chat.id,
         text='Это будет сложно, но попробуем этот месяц обойтись без вас!')
 
 
 async def start_callback_teach_yes(call: types.CallbackQuery):
-    SQLOperator().update_in_chart(user_id=call.from_user.id, in_chart=True)
+    await Mentors().update_user(telegram_id=call.from_user.id, in_chart=True)
+    await Mentors().add_mentor_to_mentors_rating(mentor_telegram_id=call.from_user.id)
     await bot.send_message(
         chat_id=call.message.chat.id,
         text='Отлично, вы ментор-сенсей для студентов 1-5 месяца обучения!')

@@ -1,6 +1,6 @@
 from aiogram import types, Dispatcher
 from config import bot, group_id
-from database.SQLOperator import SQLOperator
+from database.async_database import Database
 
 
 async def is_admin(user_id: types.Message):
@@ -12,7 +12,7 @@ async def start_command_mentors(message: types.Message):
     if message.chat.type == types.chat.ChatType.PRIVATE:
         admin = await is_admin(user_id=message.from_user.id)
         if admin:
-            mentor_list = SQLOperator().select_rating_all_mentors()
+            mentor_list = await Database().select_all_users()
             month1 = ['Для 1 месяца:']
             month2 = ['Для 2 месяца:']
             month3 = ['Для 3 месяца:']
@@ -20,31 +20,31 @@ async def start_command_mentors(message: types.Message):
             month5 = ['Для 5 месяца:']
             data = ['*Список менторов:*']
             for mentor in mentor_list:
-                if mentor["month"] > 1:
-                    if not mentor["username"]:
-                        month1.append(f'[{mentor["first_name"]}](tg://user?id={mentor["telegram_id"]})')
+                if 6 > mentor.month > 1:
+                    if not mentor.username:
+                        month1.append(f'[{mentor.first_name}](tg://user?id={mentor.telegram_id})')
                     else:
-                        month1.append(f'[{mentor["username"]}](tg://user?id={mentor["telegram_id"]})')
-                if mentor["month"] > 2:
-                    if not mentor["username"]:
-                        month2.append(f'[{mentor["first_name"]}](tg://user?id={mentor["telegram_id"]})')
+                        month1.append(f'[{mentor.username}](tg://user?id={mentor.telegram_id})')
+                if 6 > mentor.month > 2:
+                    if not mentor.username:
+                        month2.append(f'[{mentor.first_name}](tg://user?id={mentor.telegram_id})')
                     else:
-                        month2.append(f'[{mentor["username"]}](tg://user?id={mentor["telegram_id"]})')
-                if mentor["month"] > 3:
-                    if not mentor["username"]:
-                        month3.append(f'[{mentor["first_name"]}](tg://user?id={mentor["telegram_id"]})')
+                        month2.append(f'[{mentor.username}](tg://user?id={mentor.telegram_id})')
+                if 6 > mentor.month > 3:
+                    if not mentor.username:
+                        month3.append(f'[{mentor.first_name}](tg://user?id={mentor.telegram_id})')
                     else:
-                        month3.append(f'[{mentor["username"]}](tg://user?id={mentor["telegram_id"]})')
-                if mentor["month"] > 4:
-                    if not mentor["username"]:
-                        month4.append(f'[{mentor["first_name"]}](tg://user?id={mentor["telegram_id"]})')
+                        month3.append(f'[{mentor.username}](tg://user?id={mentor.telegram_id})')
+                if 6 > mentor.month > 4:
+                    if not mentor.username:
+                        month4.append(f'[{mentor.first_name}](tg://user?id={mentor.telegram_id})')
                     else:
-                        month4.append(f'[{mentor["username"]}](tg://user?id={mentor["telegram_id"]})')
-                if mentor["month"] > 5:
-                    if not mentor["username"]:
-                        month5.append(f'[{mentor["first_name"]}](tg://user?id={mentor["telegram_id"]})')
+                        month4.append(f'[{mentor.username}](tg://user?id={mentor.telegram_id})')
+                if mentor.month > 5:
+                    if not mentor.username:
+                        month5.append(f'[{mentor.first_name}](tg://user?id={mentor.telegram_id})')
                     else:
-                        month5.append(f'[{mentor["username"]}](tg://user?id={mentor["telegram_id"]})')
+                        month5.append(f'[{mentor.username}](tg://user?id={mentor.telegram_id})')
 
             for month in (month1, month2, month3, month4, month5):
                 if len(month) > 1: data += month

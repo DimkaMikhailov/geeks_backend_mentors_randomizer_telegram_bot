@@ -1,10 +1,9 @@
-import asyncio
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from config import bot, group_id
-from database.SQLOperator import SQLOperator
+from database.async_database import Database
 import keyboards.kb as kb
 
 
@@ -12,12 +11,13 @@ class PersonalStudentStates(StatesGroup):
     message = State()
     send_message = State()
 
-async def is_admin(user_id: types.Message):
+
+async def is_admin(user_id: int) -> bool:
     member = await bot.get_chat_member(chat_id=group_id, user_id=user_id)
     return True if member['status'] in ['creator', 'admin'] else False
 
 
-async def in_chat(user_id: types.Message):
+async def in_chat(user_id: int) -> bool:
     member = await bot.get_chat_member(chat_id=group_id, user_id=user_id)
     return True if member['status'] not in ['kicked', 'left'] else False
 
@@ -33,7 +33,7 @@ async def admin_action_chart(message: types.Message):
 
 
 async def admin_action_chart_mentor_list(call: types.CallbackQuery):
-    mentors = SQLOperator().select_all_mentors()
+    mentors = await Database().select_all_users()
     if mentors:
         await bot.send_message(
             chat_id=call.message.chat.id,
@@ -49,11 +49,10 @@ async def admin_action_chart_mentor_list(call: types.CallbackQuery):
 
 
 async def admin_action_check_mentor(call: types.CallbackQuery, state: FSMContext):
-    mentor_id = call.data.split('_')[-1]
-    winner = SQLOperator().select_one_mentor(user_id=int(mentor_id))
+    mentor_id = int(call.data.split('_')[-1])
+    winner = await Database().get_user(by_telegram_id=mentor_id)
     if winner:
-        SQLOperator().update_reqeust()
-        SQLOperator().update_wins(user_id=winner['telegram_id'])
+        await Database().update_mentor_rating(telegram_id=mentor_id)
 
         await bot.send_message(
             chat_id=call.message.chat.id,
@@ -64,7 +63,7 @@ async def admin_action_check_mentor(call: types.CallbackQuery, state: FSMContext
             await PersonalStudentStates.next()
 
             await bot.send_message(
-                chat_id=winner['telegram_id'],
+                chat_id=winner.telegram_id,
                 text='Старший ментор персонально передает вам студента:')
     else:
         bot.send_message(
@@ -85,7 +84,7 @@ async def admin_action_send_message(message: types.Message, state: FSMContext):
 
         await bot.send_message(
             text=answer,
-            chat_id=winner['telegram_id'],
+            chat_id=winner.telegram_id,
             parse_mode=types.ParseMode.MARKDOWN)
 
 

@@ -1,16 +1,27 @@
 from aiogram import types, Dispatcher
-from config import bot
+from config import bot, group_id
 import keyboards.kb as kb
+
+
+async def is_admin(user_id: int) -> bool:
+    member = await bot.get_chat_member(chat_id=group_id, user_id=user_id)
+    return True if member['status'] in ['creator', 'admin'] else False
 
 
 async def change_command_change(message: types.Message):
     if message.chat.type == types.chat.ChatType.PRIVATE:
-        await message.reply(
-            text='Вы хотите сменить свой месяц обучения?',
-            reply_markup=await kb.two_button_inline_markup(
-                text=['Да', 'Нет, я ошибся'],
-                callback=['change_btn_yes', 'change_btn_no']))
-
+        if await is_admin(user_id=message.from_user.id):
+            await message.reply(
+                text='Ментор-сенсей, вы хотите участвовать в розыгрыше студентов?',
+                reply_markup=await kb.two_button_inline_markup(
+                    text=['Да', 'Нет, я ошибся'],
+                    callback=['start_btn_yes', 'start_btn_no']))
+        else:
+            await message.reply(
+                text='Вы хотите сменить свой месяц обучения?',
+                reply_markup=await kb.two_button_inline_markup(
+                    text=['Да', 'Нет, я ошибся'],
+                    callback=['change_btn_yes', 'change_btn_no']))
     else:
         await message.reply(
             text='[@GEEKS_BOT](https://t.me/geek_backend_mentor_bot) и используйте команду /change',
