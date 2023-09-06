@@ -177,6 +177,18 @@ class Database:
             except NoResultFound as e:
                 print('[INFO] select request -> False', e)
 
+    async def update_all_mentors_rating(self, **kwargs) -> None:
+        async with self.session as session:
+            try:
+                query = update(MentorsRating).values(kwargs)
+                await session.execute(query)
+                await session.commit()
+                print(f'[INFO] update MentorRating: {kwargs}')
+
+            except Exception as e:
+                await session.rollback()
+                print('[INFO] update MentorRating -> False', e)
+
     async def select_all_users(self) -> list:
         async with self.session as session:
             try:
